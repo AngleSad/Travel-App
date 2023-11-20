@@ -18,7 +18,7 @@ export default function Welcome() {
     ring2Padding.value = 0;
     setTimeout(() => ring1Padding.value = withSpring(ring2Padding.value+hp(4), {damping: 10}), 200)
     setTimeout(() => ring2Padding.value = withSpring(ring1Padding.value+hp(2), {damping: 10}), 100)
-
+    
 
     setTimeout(() => navigation.navigate('Home'), 3000)
   }, [])
