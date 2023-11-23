@@ -1,10 +1,15 @@
 import React from 'react';
+import { TouchableOpacity, Linking } from 'react-native';
 import { View, Text, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-const PropertyCard = ({ name, bathrooms, beds, city, persons, rating, address, price }) => {
+const PropertyCard = ({ name, bathrooms, beds, city, persons, rating, address, price, url }) => {
+  const openURL = () => {
+    Linking.openURL(url);
+  };
   return (
-    <View className='bg-blue-200 rounded-xl p-4 m-4'>
+    
+    <View className=' bg-indigo-200 rounded-xl p-4 m-4'>
       <Text className='text-xl font-bold mb-2'>{name}</Text>
       <Text>{address}</Text>
       <Text>{city}</Text>
@@ -20,10 +25,16 @@ const PropertyCard = ({ name, bathrooms, beds, city, persons, rating, address, p
         <Text className='ml-2'>{beds}</Text>
       </View>
       <View className='flex-row items-center mt-2'>
-        <Text>{`Rating: ${rating}`}</Text>
-        <Text className='ml-auto font-bold'>{`$${price.total}`}</Text>
+        <Icon name="star" size={20} color="gold" />
+        <Text className="ml-2">{rating}</Text>
+        <Text className='ml-auto font-bold text-xl'>{`$${price.total}`}</Text>
       </View>
+      <TouchableOpacity className='flex-row items-center mt-2  rounded-xl bg-indigo-400 p-2 self-start' onPress={openURL}>
+        <Text className='text-white mr-2'>Ver más</Text>
+        <Icon name="angle-right" size={20} color="white" className='ml-2' />
+      </TouchableOpacity>
     </View>
+    
   );
 };
 

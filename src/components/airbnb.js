@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, DatePickerAndroid, Button, ScrollView } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TextInput, DatePickerAndroid, Button, ScrollView, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { TouchableOpacity } from 'react-native';
-
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import PropertyCard from './cardAirbnb';
 
@@ -19,6 +19,24 @@ const AirbnbSearch = () => {
   const [searchMode, setSearchMode] = useState(false);
   const [searchResult, setSearchResult] = useState(null);
   const [error, setError] = useState(null);
+  const [daots, setDaots] = useState(false);
+
+
+
+  useEffect(() => {
+    const getSearchData = async () => {
+      try {
+        const data = await AsyncStorage.getItem('searchData');
+        if (data !== null) {
+          setSearchResult(JSON.parse(data));
+          setDaots(true);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getSearchData();
+  }, []);
 
   const fetchData = async () => {
     const options = {
@@ -45,6 +63,7 @@ const AirbnbSearch = () => {
       console.log(response.data);
       setSearchResult(response.data);
       setError(null);
+      await AsyncStorage.setItem('searchData', JSON.stringify(response.data));
       console.log(searchResult);
     } catch (error) {
       console.error(error);
@@ -68,7 +87,7 @@ const AirbnbSearch = () => {
   };
   const searchStarted = () => {
     setSearchMode(!searchMode);
-  
+
   };
 
   const handleCheckinDate = () => {
@@ -79,119 +98,145 @@ const AirbnbSearch = () => {
     showDatePicker(setCheckoutDate);
   };
 
-  
-  const handleSubmit = () => {
+
+  const handleSubmit = async () => {
 
     searchStarted();
-    fetchData();  // Llama a fetchData al hacer clic en Submit
+    fetchData();
+
+    // Llama a fetchData al hacer clic en Submit
   };
 
   return (
     <View className="bg-transparent">
-      
-      
+
+
       {searchMode ? (
-        <ScrollView style={{maxHeight: hp(45)}}>
-        <Text>City:</Text>
-      <TextInput
-        placeholder="Enter city"
-        value={city}
-        onChangeText={(text) => setCity(text)}
-        className="border border-gray-300 p-2 mt-2"
-      />
+        <View style={{ padding: hp(2) }}>
+          <View className=" items-center">
 
-      <View className="flex flex-row mt-2">
-        <View className="w-1/2 pr-2">
-          <Text>Check-in Date:</Text>
-          <Button title="Select Date" onPress={handleCheckinDate} />
-          {checkinDate && <Text>{checkinDate.toDateString()}</Text>}
-        </View>
-        <View className="w-1/2 pl-2">
-          <Text>Check-out Date:</Text>
-          <Button title="Select Date" onPress={handleCheckoutDate} />
-          {checkoutDate && <Text>{checkoutDate.toDateString()}</Text>}
-        </View>
-      </View>
+            <TouchableOpacity className="p-2 bg-indigo-400 rounded-3xl items-center flex-row justify-center gap-x-2" onPress={searchStarted}>
+              <Text className="font-bold text-white" >Buscar</Text>
+              <Icon name="angle-up" size={30} color="white" className="" />
+            </TouchableOpacity>
 
-      <View className="flex flex-row mt-2">
-        <View className="w-1/2 pr-2">
-          <Text>Adults:</Text>
+          </View>
+          <Text className="font-bold">City:</Text>
           <TextInput
-            placeholder="Enter adults count"
-            keyboardType="numeric"
-            value={adults}
-            onChangeText={(text) => setAdults(text)}
-            className="border border-gray-300 p-2"
+            placeholder="Ciudad"
+            value={city}
+            onChangeText={(text) => setCity(text)}
+            className="border rounded-xl border-gray-300 p-2 mt-2"
           />
-        </View>
-        <View className="w-1/2 pl-2">
-          <Text>Children:</Text>
-          <TextInput
-            placeholder="Enter children count"
-            keyboardType="numeric"
-            value={children}
-            onChangeText={(text) => setChildren(text)}
-            className="border border-gray-300 p-2"
-          />
-        </View>
-      </View>
 
-      <View className="flex flex-row mt-2">
-        <View className="w-1/2 pr-2">
-          <Text>Infants:</Text>
-          <TextInput
-            placeholder="Enter infants count"
-            keyboardType="numeric"
-            value={infants}
-            onChangeText={(text) => setInfants(text)}
-            className="border border-gray-300 p-2"
-          />
-        </View>
-        <View className="w-1/2 pl-2">
-          <Text>Pets:</Text>
-          <TextInput
-            placeholder="Enter pets count"
-            keyboardType="numeric"
-            value={pets}
-            onChangeText={(text) => setPets(text)}
-            className="border border-gray-300 p-2"
-          />
-        </View>
-      </View>
+          <View className="flex flex-row mt-2">
+            <View className="w-1/2 pr-2">
+              <Text className="font-bold">Check-in Date:</Text>
+              <Button title="Fecha de Entrada" onPress={handleCheckinDate} className="border border-gray-300 rounded-xl" />
+              {checkinDate && <Text>{checkinDate.toDateString()}</Text>}
+            </View>
+            <View className="w-1/2 pl-2">
+              <Text className="font-bold">Check-out Date:</Text>
+              <Button title="Fecha de Salida" onPress={handleCheckoutDate} className="border border-gray-300 rounded-xl" />
+              {checkoutDate && <Text>{checkoutDate.toDateString()}</Text>}
+            </View>
+          </View>
 
-      <View className="items-center mb-4">
-      <TouchableOpacity className="p-4 bg-blue-200 rounded-3xl items-center w-20 justify-center" onPress={searchStarted}>
-      <Text >Buscar</Text>
-      </TouchableOpacity>
-      </View>
-      <Button title="Submit" onPress={handleSubmit} className="mt-4" />
-      </ScrollView>
+          <View className="flex flex-row mt-2">
+            <View className="w-1/2 pr-2">
+              <Text className="font-bold">Adults:</Text>
+              <TextInput
+                placeholder="Número de adultos"
+                keyboardType="numeric"
+                value={adults}
+                defaultValue='1'
+                onChangeText={(text) => setAdults(text)}
+                className="border border-gray-300 p-2 rounded-xl"
+              />
+            </View>
+            <View className="w-1/2 pl-2">
+              <Text className="font-bold">Children:</Text>
+              <TextInput
+                placeholder="Número de niños"
+                keyboardType="numeric"
+                value={children}
+                defaultValue='0'
+                onChangeText={(text) => setChildren(text)}
+                className="border border-gray-300 p-2 rounded-xl"
+              />
+            </View>
+          </View>
+
+          <View className="flex flex-row mt-2">
+            <View className="w-1/2 pr-2">
+              <Text className="font-bold">Infants:</Text>
+              <TextInput
+                placeholder="Número de bebés"
+                keyboardType="numeric"
+                value={infants}
+                defaultValue='0'
+                onChangeText={(text) => setInfants(text)}
+                className="border border-gray-300 p-2 rounded-xl"
+              />
+            </View>
+            <View className="w-1/2 pl-2">
+              <Text className="font-bold">Pets:</Text>
+              <TextInput
+                placeholder="Número de Mascotas"
+                keyboardType="numeric"
+                value={pets}
+                defaultValue='0'
+                onChangeText={(text) => setPets(text)}
+                className="border border-gray-300 p-2 rounded-xl"
+              />
+            </View>
+          </View>
+
+
+
+          <Button title="Buscar" onPress={handleSubmit} className="mt-4" />
+        </View>
       ) : (
         //cambiar tamaño a 45 creo y arreglar boton de buscar
-        <ScrollView style={{maxHeight: hp(30)}}> 
-        
-        {searchResult && searchResult.results.length > 0 ? (
-          // Si hay resultados, mostrarlosç
-          searchResult.results?.map((result) => (
-            <View key={result.id} style={{ maxHeight: hp(50)}} className="shadow-md">
-              
-              <PropertyCard name={result.name} bathrooms={result.bathrooms} city={result.city} beds={result.beds} persons={result.persons} rating={result.rating} address={result.address} price={result.price} />
-            </View>
-            
-          ))
-        ) : (
-          // Si no hay resultados, mostrar un mensaje
-          <Text className="text-center">No hay apartamentos disponibles.</Text>
-        )}
-      </ScrollView>
+        <View className="mb-24">
+          <View className=" items-center ">
+
+            <TouchableOpacity className="p-2 bg-indigo-400 rounded-3xl items-center flex-row justify-center gap-x-2" onPress={searchStarted}>
+              <Text className="text-white font-bold" >Buscar</Text>
+              <Icon name="angle-down" size={30} color="white" className="" />
+            </TouchableOpacity>
+
+          </View>
+          {searchResult && searchResult.results.length > 0 ? (
+            // Si hay resultados, mostrarlosç
+
+
+            searchResult.results?.map((result) => (
+
+              <View key={result.id} style={{ maxHeight: hp(50) }} className="shadow-md">
+
+                <PropertyCard name={result.name} bathrooms={result.bathrooms} city={result.city} beds={result.beds} persons={result.persons} rating={result.rating} address={result.address} price={result.price} url={result.url} />
+              </View>
+
+            ))
+
+          ) : (
+            !daots ? (
+              <View style={{ minHeight: hp(35), padding: hp(2) }} className=" items-center justify-center  ">
+               <ActivityIndicator size="large" color="#007AFF" />
+              </View>
+            ) : (
+              <View style={{ maxHeight: hp(45), padding: hp(2) }} className="gap-y-4">
+                <Text className="text-center">Busca apartamentos.</Text>
+              </View>
+            )
+
+          )}
+        </View>
       )}
-      
-      <View className="items-center mt-8">
-      <TouchableOpacity className="p-4 bg-blue-200 rounded-3xl items-center w-20 justify-center" onPress={searchStarted}>
-      <Text >Buscar</Text>
-      </TouchableOpacity>
-      </View>
-      
+
+
+
     </View>
 
   );

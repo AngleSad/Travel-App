@@ -4,7 +4,7 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 
 const Menu = ({ onPressButton1, onPressButton2, onPressButton3 }) => {
   return (
-    <View  className="absolute bottom-6 flex-row justify-around rounded-full bg-blue-200  mx-4 min-w-[84%]" style={{padding: hp(2)}}>
+    <View  className="absolute bottom-6 flex-row justify-around rounded-full bg-blue-200  mx-4 min-w-[84%] shadow-xl" style={{padding: hp(2)}}>
       <TouchableOpacity onPress={onPressButton1}>
         <Image
           source={require('../../assets/user.png')} // Reemplaza con la ruta correcta de tu imagen 1
